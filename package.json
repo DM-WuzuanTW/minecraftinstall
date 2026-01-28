@@ -1,0 +1,81 @@
+{
+    "name": "minecraft-server-installer",
+    "version": "2.0.0",
+    "description": "Minecraft Server Deployment Tool",
+    "main": "src/main/index.js",
+    "author": "DiamondHost",
+    "license": "MIT",
+    "scripts": {
+        "start": "electron .",
+        "dev": "electron . --dev",
+        "build:css": "tailwindcss -i ./src/ui/styles/input.css -o ./src/ui/styles/output.css --minify",
+        "watch:css": "tailwindcss -i ./src/ui/styles/input.css -o ./src/ui/styles/output.css --watch",
+        "pack": "npm run build:css && electron-builder --dir",
+        "dist": "npm run build:css && electron-builder",
+        "dist:win": "npm run build:css && electron-builder --win",
+        "postinstall": "electron-builder install-app-deps"
+    },
+    "build": {
+        "appId": "tw.diamondhost.mcinstaller",
+        "productName": "Minecraft Server Installer",
+        "compression": "maximum",
+        "directories": {
+            "output": "dist",
+            "buildResources": "assets"
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "icon": "assets/icon.png",
+            "requestedExecutionLevel": "requireAdministrator",
+            "artifactName": "${productName}-${version}-Setup.${ext}"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowElevation": true,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "Minecraft Installer",
+            "deleteAppDataOnUninstall": false
+        },
+        "files": [
+            "src/**/*",
+            "assets/**/*",
+            "!assets/*.png",
+            "package.json"
+        ],
+        "extraFiles": [
+            {
+                "from": "assets",
+                "to": "resources/assets",
+                "filter": [
+                    "**/*"
+                ]
+            }
+        ],
+        "publish": {
+            "provider": "github",
+            "owner": "DM-WuzuanTW",
+            "repo": "minecraftinstall"
+        }
+    },
+    "dependencies": {
+        "axios": "^1.6.5",
+        "electron-updater": "^6.1.7",
+        "fs-extra": "^11.2.0",
+        "adm-zip": "^0.5.10",
+        "node-fetch": "^2.7.0"
+    },
+    "devDependencies": {
+        "electron": "^28.2.0",
+        "electron-builder": "^24.9.1",
+        "tailwindcss": "^3.4.1"
+    }
+}

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+dist-obfuscated/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+*.exe
+*.zip
+*.tmp
+.idea/
+.vscode/
+*.swp
+*.swo
+.env
+.env.local

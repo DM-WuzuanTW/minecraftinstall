@@ -1,0 +1,87 @@
+const { autoUpdater } = require('electron-updater');
+const { dialog } = require('electron');
+
+class UpdateManager {
+    constructor(mainWindow) {
+        this.window = mainWindow;
+        this.setupLogger();
+        this.configureUpdater();
+        this.attachHandlers();
+    }
+
+    setupLogger() {
+        autoUpdater.logger = console;
+    }
+
+    configureUpdater() {
+        autoUpdater.autoDownload = false;
+        autoUpdater.autoInstallOnAppQuit = true;
+    }
+
+    attachHandlers() {
+        autoUpdater.on('checking-for-update', () => {
+            this.sendStatus('Checking for updates...');
+        });
+
+        autoUpdater.on('update-available', (info) => {
+            this.sendStatus('update-available', info);
+            this.promptDownload(info);
+        });
+
+        autoUpdater.on('update-not-available', () => {
+            this.sendStatus('update-not-available');
+        });
+
+        autoUpdater.on('error', (err) => {
+            this.sendStatus('error', err.message);
+        });
+
+        autoUpdater.on('download-progress', (progress) => {
+            this.sendStatus('download-progress', progress);
+        });
+
+        autoUpdater.on('update-downloaded', (info) => {
+            this.sendStatus('update-downloaded', info);
+            this.promptInstall();
+        });
+    }
+
+    sendStatus(type, data = null) {
+        if (this.window && !this.window.isDestroyed()) {
+            this.window.webContents.send('update-status', { type, data });
+        }
+    }
+
+    promptDownload(info) {
+        const version = info.version;
+        dialog.showMessageBox(this.window, {
+            type: 'info',
+            title: 'Update Available',
+            message: `A new version (${version}) is available. Download now?`,
+            buttons: ['Download', 'Later']
+        }).then(result => {
+            if (result.response === 0) {
+                autoUpdater.downloadUpdate();
+            }
+        });
+    }
+
+    promptInstall() {
+        dialog.showMessageBox(this.window, {
+            type: 'info',
+            title: 'Update Ready',
+            message: 'Update has been downloaded. Restart to install?',
+            buttons: ['Restart Now', 'Later']
+        }).then(result => {
+            if (result.response === 0) {
+                autoUpdater.quitAndInstall(false, true);
+            }
+        });
+    }
+
+    check() {
+        autoUpdater.checkForUpdates();
+    }
+}
+
+module.exports = UpdateManager;
