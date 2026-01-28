@@ -1,6 +1,6 @@
 {
     "name": "minecraft-server-installer",
-    "version": "2.0.13",
+    "version": "2.0.14",
     "description": "Minecraft Server Deployment Tool",
     "main": "src/main/index.js",
     "author": "DiamondHost",
