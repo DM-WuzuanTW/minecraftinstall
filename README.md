@@ -71,9 +71,17 @@ publish.bat
 
 腳本會自動:
 1. 版本號 +0.0.1
-2. Commit 版本變更
-3. 建立並推送 Tag
-4. 觸發 GitHub Actions 自動打包和發布
+2. Commit package.json
+3. 推送到 GitHub
+4. 建立並推送 v{version} tag
+5. 編譯 Tailwind CSS
+6. 打包免安裝 ZIP
+7. 上傳到 GitHub Releases
+
+**注意事項**:
+- 第一次使用需要提供 GitHub Personal Access Token
+- Token 會自動儲存到系統環境變數
+- 確保已提交所有程式碼變更再執行腳本
 
 ## 使用說明
 
