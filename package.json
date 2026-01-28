@@ -1,6 +1,6 @@
 {
     "name": "minecraft-server-installer",
-    "version": "2.0.7",
+    "version": "2.0.8",
     "description": "Minecraft Server Deployment Tool",
     "main": "src/main/index.js",
     "author": "DiamondHost",
@@ -18,7 +18,7 @@
     "build": {
         "appId": "tw.diamondhost.mcinstaller",
         "productName": "Minecraft Server Installer",
-        "compression": "maximum",
+        "compression": "store",
         "directories": {
             "output": "dist",
             "buildResources": "assets"
@@ -37,23 +37,19 @@
         },
         "files": [
             "src/**/*",
-            "assets/**/*",
-            "!assets/*.png",
-            "package.json"
-        ],
-        "extraFiles": [
-            {
-                "from": "assets",
-                "to": "resources/assets",
-                "filter": [
-                    "**/*"
-                ]
-            }
+            "assets/icon.png",
+            "package.json",
+            "!**/node_modules/**",
+            "!src/**/*.{ts,map}",
+            "!.github",
+            "!docs",
+            "!dist"
         ],
         "publish": {
             "provider": "github",
             "owner": "DM-WuzuanTW",
-            "repo": "minecraftinstall"
+            "repo": "minecraftinstall",
+            "timeout": 300000
         }
     },
     "dependencies": {
