@@ -1,6 +1,6 @@
 {
     "name": "minecraft-server-installer",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Minecraft Server Deployment Tool",
     "main": "src/main/index.js",
     "author": "DiamondHost",
@@ -26,24 +26,14 @@
         "win": {
             "target": [
                 {
-                    "target": "nsis",
+                    "target": "zip",
                     "arch": [
                         "x64"
                     ]
                 }
             ],
             "icon": "assets/icon.png",
-            "requestedExecutionLevel": "requireAdministrator",
-            "artifactName": "${productName}-${version}-Setup.${ext}"
-        },
-        "nsis": {
-            "oneClick": false,
-            "allowElevation": true,
-            "allowToChangeInstallationDirectory": true,
-            "createDesktopShortcut": true,
-            "createStartMenuShortcut": true,
-            "shortcutName": "Minecraft Installer",
-            "deleteAppDataOnUninstall": false
+            "artifactName": "${productName}-${version}-Portable.${ext}"
         },
         "files": [
             "src/**/*",
