@@ -37,7 +37,7 @@
                 <div class="mc-card">
                     <h2 class="text-lg font-bold text-[#ffeb3b] mb-2 uppercase tracking-wide"
                         style="text-shadow: 2px 2px 0 rgba(0,0,0,0.8);">
-                        🎮 歡迎使用！
+                        歡迎使用！
                     </h2>
                     <p class="text-sm text-[#ddd] mb-2">這是一個簡單易用的 Minecraft 伺服器安裝工具</p>
                     <p class="text-xs text-[#aaa]">只需要 3 個步驟就能架設你的伺服器！</p>
@@ -47,22 +47,22 @@
             <div class="space-y-6">
                 <div class="mc-card">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-2xl">1️⃣</span>
+                        <span class="text-2xl">1</span>
                         <h3 class="mc-label text-base">選擇伺服器類型</h3>
                     </div>
                     <select id="server-type" class="mc-select">
-                        <option value="Paper">Paper - 推薦新手 (高效能、支援插件)</option>
+                        <option value="Vanilla">Vanilla - 官方原版 (最穩定、純淨體驗)</option>
                         <option value="Purpur">Purpur - 進階玩家 (Paper 增強版)</option>
+                        <option value="Paper">Paper - 推薦新手 (高效能、支援插件)</option>
                         <option value="Fabric">Fabric - 模組玩家 (輕量模組)</option>
                         <option value="Forge">Forge - 模組玩家 (大型模組)</option>
-                        <option value="Vanilla">Vanilla - 原版體驗 (官方原版)</option>
                     </select>
-                    <p class="text-xs text-[#aaa] mt-2">💡 不確定選哪個？新手建議選 Paper</p>
+                    <p class="text-xs text-[#aaa] mt-2">提示: 不確定選哪個？新手建議選 Paper</p>
                 </div>
 
                 <div class="mc-card">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-2xl">2️⃣</span>
+                        <span class="text-2xl">2</span>
                         <h3 class="mc-label text-base">選擇遊戲版本</h3>
                     </div>
                     <div class="flex gap-2">
@@ -87,7 +87,7 @@
                 <div class="mc-divider"></div>
 
                 <div class="mc-card">
-                    <h3 class="mc-label mb-3">⚙️ 進階設定 (選填)</h3>
+                    <h3 class="mc-label mb-3">進階設定 (選填)</h3>
 
                     <div class="space-y-3">
                         <label class="flex items-center gap-2 cursor-pointer group">
@@ -112,7 +112,7 @@
                                     <span class="text-sm text-white font-bold">MB</span>
                                 </div>
                             </div>
-                            <p class="text-xs text-[#aaa] mt-1">💡 建議至少 2048MB (2GB)</p>
+                            <p class="text-xs text-[#aaa] mt-1">提示: 建議至少 2048MB (2GB)</p>
                         </div>
 
                         <div class="mc-divider"></div>
@@ -144,7 +144,7 @@
                 </div>
 
                 <div id="progress-section" class="mc-card hidden">
-                    <h3 class="mc-label mb-3">⏳ 安裝進度</h3>
+                    <h3 class="mc-label mb-3">安裝進度</h3>
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm">
                             <span id="progress-text" class="text-white">準備中...</span>
@@ -158,10 +158,10 @@
 
                 <div class="flex gap-3 justify-end pt-4">
                     <button id="reset-btn" class="mc-btn px-6">
-                        🔄 重置設定
+                        重置設定
                     </button>
                     <button id="install-btn" class="mc-btn-primary px-8 py-3 text-lg font-bold">
-                        ⚡ 開始安裝伺服器
+                        開始安裝伺服器
                     </button>
                 </div>
             </div>
@@ -170,8 +170,8 @@
         <div class="mc-titlebar border-t-4 border-[#3a2817] py-2">
             <div id="status-text" class="text-xs text-[#aaa]">準備就緒</div>
             <div class="flex gap-2">
-                <button id="help-btn" class="mc-btn text-xs px-3 py-1">❓ 說明</button>
-                <button id="update-btn" class="mc-btn text-xs px-3 py-1">🔄 檢查更新</button>
+                <button id="help-btn" class="mc-btn text-xs px-3 py-1">說明</button>
+                <button id="update-btn" class="mc-btn text-xs px-3 py-1">檢查更新</button>
             </div>
         </div>
     </div>
@@ -189,7 +189,7 @@
     <div id="help-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
         <div class="mc-panel max-w-2xl w-full max-h-[80vh] flex flex-col">
             <div class="mc-titlebar">
-                <h3 class="text-lg font-bold text-white uppercase">📚 使用說明</h3>
+                <h3 class="text-lg font-bold text-white uppercase">使用說明</h3>
                 <button id="help-close" class="mc-btn-danger px-3 py-1 text-sm">✖ 關閉</button>
             </div>
             <div class="p-6 overflow-y-auto mc-scrollbar">

@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    
+    steps:
+      - name: 檢出代碼
+        uses: actions/checkout@v4
+
+      - name: 設置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安裝依賴
+        run: npm ci
+
+      - name: 編譯 Tailwind CSS
+        run: npm run build:css
+
+      - name: 打包應用程式
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 取得版本號
+        id: get_version
+        run: |
+          $VERSION = node -p "require('./package.json').version"
+          echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: 建立 GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Minecraft Server Installer v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## Minecraft 伺服器安裝器 v${{ steps.get_version.outputs.VERSION }}
+            
+            ### 下載
+            解壓縮後直接執行 `Minecraft Server Installer.exe`
+            
+            ### 特色
+            - Minecraft 工作台主題設計
+            - 完整繁體中文介面
+            - 新手友善的 3 步驟引導
+            - 像素藝術風格 UI
+            - 自動更新支援
+            
+            ### 支援的伺服器類型
+            - Paper (推薦新手)
+            - Purpur
+            - Fabric
+            - Forge
+            - Vanilla
+            
+            ### 使用說明
+            1. 解壓縮 ZIP 檔案
+            2. 執行 `Minecraft Server Installer.exe`
+            3. 依照 1-2-3 步驟選擇伺服器類型、版本和安裝位置
+            4. 設定記憶體與進階選項
+            5. 點擊「開始安裝伺服器」
+          files: |
+            dist/*.zip
+            dist/*.yml
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

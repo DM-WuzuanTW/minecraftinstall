@@ -1,104 +1,120 @@
-# Minecraft Server Installer - 使用說明
+# Minecraft Server Installer
+
+> 簡單易用的 Minecraft 伺服器安裝工具 - Minecraft 工作台風格設計
+
+## 特色
+
+- **Minecraft 主題設計** - 木質紋理背景、石質按鈕、像素藝術風格
+- **完整中文化** - 繁體中文介面，新手友善
+- **3 步驟安裝** - 選類型 → 選版本 → 選位置，簡單完成
+- **自動更新** - 內建更新系統，永遠保持最新版本
+- **免安裝** - 下載解壓即用，不需要安裝程序
+
+## 下載
+
+前往 [Releases](https://github.com/DM-WuzuanTW/minecraftinstall/releases/latest) 下載最新版本
 
 ## 快速開始
 
-### 開發環境
+### 使用者
 
-1. 安裝依賴:
+1. 下載 `Minecraft Server Installer-x.x.x-Portable.zip`
+2. 解壓縮到任意位置
+3. 執行 `Minecraft Server Installer.exe`
+4. 依照介面指示完成伺服器安裝
+
+### 支援的伺服器類型
+
+| 類型 | 說明 | 適合對象 |
+|------|------|----------|
+| **Paper** | 高效能、支援插件 | 推薦新手 |
+| **Purpur** | Paper 增強版 | 進階玩家 |
+| **Fabric** | 輕量模組支援 | 模組玩家 |
+| **Forge** | 大型模組支援 | 模組玩家 |
+| **Vanilla** | 官方原版 | 原版體驗 |
+
+## 開發
+
+### 環境要求
+
+- Node.js 18+
+- npm
+
+### 本地運行
+
 ```bash
+# 安裝依賴
 npm install
-```
 
-2. 啟動開發模式:
-```bash
+# 編譯 CSS (開發時)
+npm run watch:css
+
+# 啟動應用
 npm start
 ```
 
-3. 編譯 CSS (開發時):
-```bash
-npm run watch:css
-```
+### 打包
 
-### 打包發布
-
-1. 編譯並打包:
 ```bash
+# 打包免安裝版 ZIP
 npm run dist
 ```
 
-2. 產物位置:
-- `dist/Minecraft Server Installer-2.0.0-Setup.exe` - 安裝程式
-- `dist/win-unpacked/` - 免安裝版本
+### 發布流程
 
-### 自動更新設定
+使用自動化發布腳本:
 
-專案已配置 GitHub Releases 自動更新。發布新版本:
-
-1. 更新 `package.json` 的版本號
-2. 重新打包
-3. 在 GitHub 建立 Release 並上傳 Setup.exe
-4. 使用者將自動收到更新通知
-
-## 專案特色
-
-### UI 設計
-- 現代深色主題
-- 使用 Lucide Icons SVG
-- 無 emoji 使用
-- 流暢的動畫效果
-- 響應式布局
-
-### 支援的伺服器
-- Paper (高效能插件版)
-- Purpur (Paper 分支)
-- Fabric (輕量模組)
-- Forge (重型模組)
-- Vanilla (原版)
-
-### 功能亮點
-- 自動版本檢測
-- 下載進度追蹤
-- 記憶體配置 (1GB-16GB)
-- server.properties 配置
-- Java 環境檢測
-- EULA 自動接受
-- 啟動腳本生成
-
-## 技術架構
-
-### 核心模組
-- `src/main/index.js` - Electron 主進程
-- `src/main/updater.js` - 自動更新管理
-- `src/main/downloader.js` - 檔案下載管理
-- `src/main/installer.js` - 伺服器安裝邏輯
-- `src/api/MinecraftAPI.js` - API 客戶端
-
-### UI 層
-- `src/ui/index.html` - 主介面
-- `src/ui/renderer.js` - 渲染進程邏輯
-- `src/ui/styles/input.css` - Tailwind 輸入
-- `src/ui/styles/output.css` - 編譯後 CSS
-
-## 開發指南
-
-### 新增伺服器類型
-
-1. 在 `MinecraftAPI.js` 添加獲取版本的方法
-2. 在 `installer.js` 的 `getDownloadUrl` 添加下載邏輯
-3. 在 `index.html` 的下拉選單添加選項
-
-### 自訂 UI
-
-修改 `src/ui/styles/input.css` 並重新編譯:
 ```bash
-npm run build:css
+# 執行發布腳本
+publish.bat
 ```
+
+腳本會自動:
+1. 版本號 +0.0.1
+2. Commit 版本變更
+3. 建立並推送 Tag
+4. 觸發 GitHub Actions 自動打包和發布
+
+## 使用說明
+
+### 基本設定
+
+1. **選擇伺服器類型** - 新手建議選擇 Paper
+2. **選擇遊戲版本** - 建議選擇最新穩定版
+3. **選擇安裝位置** - 選擇一個空資料夾
+
+### 進階設定 (選填)
+
+- **記憶體配置** - 建議至少 2GB (2048 MB)
+- **伺服器端口** - 預設 25565
+- **最大玩家數** - 預設 20 人
+- **正版驗證** - 根據需求開啟或關閉
+
+### 記憶體建議
+
+| 玩家數 | 建議記憶體 |
+|--------|------------|
+| 1-5 人 | 2-4 GB |
+| 5-10 人 | 4-6 GB |
+| 10+ 人 | 8+ GB |
+
+## 介面預覽
+
+- 深棕色木質紋理背景 (橡木材質)
+- 灰色石質 3D 按鈕
+- 工作台風格標題欄
+- 8-bit 像素藝術風格
+- 清晰的步驟指引
 
 ## 授權
 
-MIT License - 可自由修改與分發
+MIT License
 
-## 開發團隊
+## 支援
 
-DiamondHost Team  
-Email: support@diamondhost.tw
+- 問題回報: [GitHub Issues](https://github.com/DM-WuzuanTW/minecraftinstall/issues)
+- 開發團隊: DiamondHost
+
+---
+
+Made by DiamondHost Team

@@ -37,7 +37,7 @@ elements.pathBtn.addEventListener('click', async () => {
     const path = await ipcRenderer.invoke('select-folder');
     if (path) {
         elements.installPath.value = path;
-        showStatus('✅ 已選擇安裝位置');
+        showStatus('[完成] 已選擇安裝位置');
     }
 });
 
@@ -50,19 +50,19 @@ elements.versionBtn.addEventListener('click', async () => {
     const btn = elements.versionBtn;
     const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '⏳ 載入中...';
+    btn.textContent = '載入中...';
     btn.classList.add('mc-animate-bounce');
 
     try {
         currentVersions = await ipcRenderer.invoke('get-versions', elements.serverType.value);
         if (currentVersions && currentVersions.length > 0) {
             showVersionModal(currentVersions);
-            showStatus('✅ 版本清單已載入');
+            showStatus('[完成] 版本清單已載入');
         } else {
-            showStatus('❌ 無法取得版本清單', true);
+            showStatus('[錯誤] 無法取得版本清單', true);
         }
     } catch (error) {
-        showStatus('❌ 載入版本時發生錯誤', true);
+        showStatus('[錯誤] 載入版本時發生錯誤', true);
     } finally {
         btn.disabled = false;
         btn.textContent = originalText;
@@ -83,7 +83,7 @@ function showVersionModal(versions) {
 window.selectVersion = (version) => {
     elements.versionInput.value = version;
     elements.modal.classList.add('hidden');
-    showStatus(`✅ 已選擇版本: ${version}`);
+    showStatus(`[完成] 已選擇版本: ${version}`);
 };
 
 elements.modalClose.addEventListener('click', () => {
@@ -131,50 +131,50 @@ elements.installBtn.addEventListener('click', async () => {
     };
 
     if (!config.version) {
-        showStatus('❌ 請選擇遊戲版本', true);
+        showStatus('[錯誤] 請選擇遊戲版本', true);
         elements.versionBtn.classList.add('mc-animate-shake');
         setTimeout(() => elements.versionBtn.classList.remove('mc-animate-shake'), 300);
         return;
     }
 
     if (!config.installPath) {
-        showStatus('❌ 請選擇安裝位置', true);
+        showStatus('[錯誤] 請選擇安裝位置', true);
         elements.pathBtn.classList.add('mc-animate-shake');
         setTimeout(() => elements.pathBtn.classList.remove('mc-animate-shake'), 300);
         return;
     }
 
     if (!config.options.acceptEula) {
-        showStatus('❌ 請同意 EULA 條款', true);
+        showStatus('[錯誤] 請同意 EULA 條款', true);
         return;
     }
 
     isInstalling = true;
     elements.installBtn.disabled = true;
-    elements.installBtn.textContent = '⏳ 安裝中...';
+    elements.installBtn.textContent = '安裝中...';
     elements.progressSection.classList.remove('hidden');
     updateProgress('準備下載伺服器檔案...', 0);
-    showStatus('🔄 正在安裝伺服器...');
+    showStatus('[處理] 正在安裝伺服器...');
 
     try {
         const result = await ipcRenderer.invoke('start-installation', config);
         if (result.success) {
-            updateProgress('✅ 安裝完成！', 100);
-            showStatus('✅ 伺服器安裝成功！');
+            updateProgress('[完成] 安裝完成！', 100);
+            showStatus('[完成] 伺服器安裝成功！');
             setTimeout(() => {
-                alert('🎉 安裝完成！\n\n伺服器已安裝在:\n' + result.path + '\n\n請執行 start.bat 啟動伺服器');
+                alert('[完成] 安裝完成！\n\n伺服器已安裝在:\n' + result.path + '\n\n請執行 start.bat 啟動伺服器');
             }, 500);
         } else {
-            updateProgress('❌ 安裝失敗', 0);
+            updateProgress('[失敗] 安裝失敗', 0);
             showStatus(result.error || '安裝過程發生錯誤', true);
         }
     } catch (error) {
-        updateProgress('❌ 發生錯誤', 0);
+        updateProgress('[錯誤] 發生錯誤', 0);
         showStatus('安裝錯誤: ' + error.message, true);
     } finally {
         isInstalling = false;
         elements.installBtn.disabled = false;
-        elements.installBtn.textContent = '⚡ 開始安裝伺服器';
+        elements.installBtn.textContent = '開始安裝伺服器';
     }
 });
 
@@ -192,7 +192,7 @@ elements.resetBtn.addEventListener('click', () => {
         elements.propMotd.value = '一個全新的 Minecraft 伺服器';
         elements.propOnline.value = 'true';
         elements.progressSection.classList.add('hidden');
-        showStatus('✅ 設定已重置');
+        showStatus('[完成] 設定已重置');
     }
 });
 
@@ -211,7 +211,7 @@ elements.helpModal.addEventListener('click', (e) => {
 });
 
 elements.updateBtn.addEventListener('click', async () => {
-    showStatus('🔄 檢查更新中...');
+    showStatus('[處理] 檢查更新中...');
     await ipcRenderer.invoke('check-updates');
 });
 
@@ -244,19 +244,19 @@ ipcRenderer.on('update-status', (event, data) => {
     const { type, data: info } = data;
 
     if (type === 'checking-for-update') {
-        showStatus('🔄 正在檢查更新...');
+        showStatus('[處理] 正在檢查更新...');
     } else if (type === 'update-available') {
-        showStatus(`🎉 發現新版本 ${info.version}`);
+        showStatus(`[更新] 發現新版本 ${info.version}`);
     } else if (type === 'update-not-available') {
-        showStatus('✅ 已是最新版本');
+        showStatus('[完成] 已是最新版本');
     } else if (type === 'download-progress') {
         const percent = Math.round(info.percent);
-        showStatus(`⏬ 下載更新中: ${percent}%`);
+        showStatus(`[下載] 下載更新中: ${percent}%`);
     } else if (type === 'update-downloaded') {
-        showStatus('✅ 更新已下載，重啟後安裝');
+        showStatus('[完成] 更新已下載，重啟後安裝');
     }
 });
 
 ipcRenderer.invoke('get-app-version').then(version => {
-    showStatus(`✅ 準備就緒 | 版本 v${version}`);
+    showStatus(`[就緒] 版本 v${version}`);
 });
