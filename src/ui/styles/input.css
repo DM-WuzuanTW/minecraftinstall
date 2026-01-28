@@ -10,7 +10,7 @@
     }
 
     body {
-        @apply bg-[#4a3a2a] text-[#fff9e6] font-mono;
+        @apply bg-[#4a3a2a] text-[#fff9e6] font-mono overflow-hidden;
         background-image:
             linear-gradient(90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
             linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px);

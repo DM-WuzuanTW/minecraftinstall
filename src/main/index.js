@@ -16,21 +16,21 @@ const isDev = process.argv.includes('--dev');
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 680,
-        height: 780,
+        height: 720,
         minWidth: 680,
-        minHeight: 780,
+        minHeight: 720,
         resizable: true,
         maximizable: false,
         frame: true,
         backgroundColor: '#0f172a',
+        icon: path.join(__dirname, '../../assets/icon.png'),
+        autoHideMenuBar: true,
+        show: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
             enableRemoteModule: false
-        },
-        icon: path.join(__dirname, '../../assets/icon.png'),
-        autoHideMenuBar: true,
-        show: false
+        }
     });
 
     mainWindow.loadFile(path.join(__dirname, '../ui/index.html'));
