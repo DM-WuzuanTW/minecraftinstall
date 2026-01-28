@@ -254,6 +254,8 @@ ipcRenderer.on('update-status', (event, data) => {
         showStatus(`[下載] 下載更新中: ${percent}%`);
     } else if (type === 'update-downloaded') {
         showStatus('[完成] 更新已下載，重啟後安裝');
+    } else if (type === 'error') {
+        showStatus(`[錯誤] 更新失敗: ${info?.message || '未知錯誤'}`, true);
     }
 });
 

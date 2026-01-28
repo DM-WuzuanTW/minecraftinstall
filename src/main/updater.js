@@ -20,7 +20,7 @@ class UpdateManager {
 
     attachHandlers() {
         autoUpdater.on('checking-for-update', () => {
-            this.sendStatus('Checking for updates...');
+            this.sendStatus('checking-for-update');
         });
 
         autoUpdater.on('update-available', (info) => {
@@ -33,7 +33,8 @@ class UpdateManager {
         });
 
         autoUpdater.on('error', (err) => {
-            this.sendStatus('error', err.message);
+            console.error('Update error:', err);
+            this.sendStatus('error', { message: err.message });
         });
 
         autoUpdater.on('download-progress', (progress) => {
