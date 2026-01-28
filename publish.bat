@@ -62,24 +62,11 @@ echo  開始發布流程
 echo ========================================================
 echo.
 
-REM --- 取得當前版本 ---
+REM --- 自動遞增版本 ---
+echo [執行] 自動遞增版本號...
+call npm version patch --no-git-tag-version
 for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
-
-echo [當前版本] v%VERSION%
-echo.
-echo 是否要自動遞增版本號？
-echo 1) 是 (patch: %VERSION% -^> 下一個小版本)
-echo 2) 否 (保持當前版本)
-echo.
-set /p "INCREMENT=請選擇 (1/2): "
-
-if "%INCREMENT%"=="1" (
-    echo.
-    echo [執行] 遞增版本號...
-    call npm version patch --no-git-tag-version
-    for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
-    echo [完成] 新版本: v%VERSION%
-)
+echo [完成] 新版本: v%VERSION%
 
 echo.
 echo --------------------------------------------------------
