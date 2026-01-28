@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-title Minecraft Server Installer - 自動發布
+title Minecraft Server Installer - 快速發布
 
 echo ========================================================
-echo    Minecraft 伺服器安裝器 - 自動發布工具
+echo    Minecraft 伺服器安裝器 - 快速發布工具
 echo ========================================================
 echo.
 echo 此腳本會自動:
@@ -12,7 +12,7 @@ echo  1. 遞增版本號 (+0.0.1)
 echo  2. Commit 版本變更
 echo  3. 建立並推送 Git Tag
 echo  4. 編譯 CSS
-echo  5. 打包應用程式
+echo  5. 打包應用程式 (快速模式)
 echo  6. 上傳到 GitHub Releases
 echo.
 echo --------------------------------------------------------
@@ -120,11 +120,19 @@ if %errorlevel% neq 0 (
 echo [完成] CSS 編譯完成
 echo.
 
-REM --- 打包與發布 ---
-echo [步驟 6/6] 打包應用程式並上傳到 GitHub...
-echo    - 這可能需要幾分鐘，請稍候...
+REM --- 清理舊的 dist ---
+echo [清理] 移除舊的打包檔案...
+if exist dist rmdir /s /q dist
+echo [完成] 清理完成
 echo.
 
+REM --- 打包與發布 ---
+echo [步驟 6/6] 打包應用程式並上傳到 GitHub...
+echo    - 使用快速模式 (無壓縮)
+echo    - 預計 1-3 分鐘完成
+echo.
+
+set ELECTRON_BUILDER_TIMEOUT=300000
 call npm run dist -- --publish always
 
 if %errorlevel% neq 0 (
@@ -135,6 +143,8 @@ if %errorlevel% neq 0 (
     echo     2. 網路問題
     echo     3. 標籤已存在草稿發布
     echo     4. 打包過程出錯
+    echo.
+    echo     建議: 檢查上方的錯誤訊息
     pause
     exit /b
 )
@@ -145,6 +155,7 @@ echo  發布完成！Release v%VERSION% 已上線
 echo  https://github.com/DM-WuzuanTW/minecraftinstall/releases/tag/v%VERSION%
 echo ========================================================
 echo.
+echo 檔案大小會比較大 (因使用無壓縮模式以加快打包速度)
 echo 使用者可以透過應用程式內的自動更新功能取得此版本
 echo.
 pause
