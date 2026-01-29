@@ -48,8 +48,20 @@ class ServerInstaller {
             const downloadUrl = await this.getDownloadUrl(serverType, version);
             const filename = this.getFilename(serverType, version);
             const jarPath = await this.downloader.download(downloadUrl, filename);
-            const targetPath = path.join(installPath, 'server.jar');
+
+            let targetJarName = 'server.jar';
+            if (serverType.toLowerCase() === 'forge') {
+                targetJarName = 'forge-installer.jar';
+            }
+
+            const targetPath = path.join(installPath, targetJarName);
             await fs.move(jarPath, targetPath, { overwrite: true });
+
+            // Special handling for Forge
+            if (serverType.toLowerCase() === 'forge') {
+                updateProgress('正在執行 Forge 安裝程序... (這可能需要幾分鐘)', 95);
+                await this.installForge(installPath, javaPath, targetJarName);
+            }
 
             // 3. Setup Files
             if (options.acceptEula) {
@@ -64,7 +76,11 @@ class ServerInstaller {
                     scriptJavaPath = path.relative(installPath, javaPath);
                 }
 
-                await this.createStartScript(installPath, options.memory || 4096, options.gui || false, scriptJavaPath);
+                if (serverType.toLowerCase() === 'forge') {
+                    await this.createForgeStartScript(installPath, options.memory || 4096, options.gui || false, scriptJavaPath);
+                } else {
+                    await this.createStartScript(installPath, options.memory || 4096, options.gui || false, scriptJavaPath);
+                }
             }
 
             if (options.serverProperties) {
@@ -93,6 +109,67 @@ class ServerInstaller {
         const eulaPath = path.join(dir, 'eula.txt');
         const content = `eula=true\n`;
         await fs.writeFile(eulaPath, content, 'utf8');
+    }
+
+    async installForge(dir, javaPath, installerName) {
+        return new Promise((resolve, reject) => {
+            console.log('Running Forge Installer:', javaPath, installerName);
+            const process = spawn(javaPath, ['-jar', installerName, '--installServer'], {
+                cwd: dir,
+                stdio: 'ignore' // or 'inherit' for debugging
+            });
+            process.on('close', (code) => {
+                if (code === 0) resolve();
+                else reject(new Error('Forge Installer failed with code ' + code));
+            });
+            process.on('error', (err) => reject(err));
+        });
+    }
+
+    async createForgeStartScript(installPath, memory, gui, javaPath) {
+        // Modern Forge (1.17+) uses run.bat and user_jvm_args.txt
+        const runBatPath = path.join(installPath, 'run.bat');
+        const runShPath = path.join(installPath, 'run.sh');
+
+        // Write memory settings to user_jvm_args.txt
+        const argsContent = `# Xmx and Xms set the maximum and minimum RAM usage of your server.
+-Xms1024M
+-Xmx${memory}M
+`;
+        await fs.writeFile(path.join(installPath, 'user_jvm_args.txt'), argsContent);
+
+        // Check if run.bat exists (Modern Forge)
+        if (await fs.pathExists(runBatPath) || await fs.pathExists(runShPath)) {
+            // Create a start.bat that calls run.bat but ensures we use OUR java
+            // Wait, run.bat usually tries to find java. 
+            // We can set JAVA_HOME or just edit user_jvm_args? No user_jvm_args is for JVM args.
+            // run.bat uses "java" command. Use PATH.
+
+            // To be safe, we generate our own simple start script that mimics run.bat but uses our java path
+            // Parsing run.bat is hard. 
+            // EASIEST WAY: Set PATH before calling run.bat
+
+            const scriptContent = `@echo off
+set "PATH=${path.dirname(javaPath)};%PATH%"
+call run.bat ${gui ? '' : '--nogui'}
+pause
+`;
+            await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
+        } else {
+            // Older Forge: Look for forge-universal.jar or similar
+            const files = await fs.readdir(installPath);
+            const forgeJar = files.find(f => f.startsWith('forge-') && f.endsWith('.jar') && !f.includes('installer'));
+
+            if (forgeJar) {
+                const scriptContent = `@echo off
+"${javaPath}" -Xms1024M -Xmx${memory}M -jar ${forgeJar} ${gui ? '' : '--nogui'}
+pause
+`;
+                await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
+            } else {
+                throw new Error('無法找到 Forge 啟動檔案 (run.bat 或 forge-universal.jar)');
+            }
+        }
     }
 
     async createStartScript(dir, memoryMB, gui, javaCommand = 'java') {

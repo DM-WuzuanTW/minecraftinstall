@@ -107,6 +107,20 @@ class MinecraftAPI {
             return manifest && manifest.downloads ? manifest.downloads.server.url : null;
         }
 
+        if (lowerType === 'forge') {
+            const promos = await this.getForgeVersions();
+            // Try recommended first, then latest
+            let forgeVersion = promos[`${version}-recommended`] || promos[`${version}-latest`];
+
+            if (!forgeVersion) {
+                // If not found in promos, try to guess or return null. 
+                // Some versions might not have recommended build.
+                return null;
+            }
+
+            return `https://maven.minecraftforge.net/net/minecraftforge/forge/${version}-${forgeVersion}/forge-${version}-${forgeVersion}-installer.jar`;
+        }
+
         return null;
     }
 }
