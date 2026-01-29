@@ -11,7 +11,7 @@ let downloadManager;
 let installer;
 let api;
 
-const isDev = process.argv.includes('--dev');
+const isDev = !app.isPackaged;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -153,9 +153,15 @@ ipcMain.handle('start-installation', async (event, config) => {
     }
 });
 
-ipcMain.handle('check-updates', async () => {
+ipcMain.handle('check-updates', async (event) => {
     if (updateManager) {
         updateManager.check();
+    } else {
+        // Dev mode fallback
+        event.sender.send('update-status', {
+            type: 'error',
+            data: { message: '開發模式無法使用自動更新功能' }
+        });
     }
     return true;
 });

@@ -81,7 +81,17 @@ class UpdateManager {
     }
 
     check() {
-        autoUpdater.checkForUpdates();
+        if (!require('electron').app.isPackaged) {
+            console.log('Skipping update check in dev mode');
+            this.sendStatus('error', { message: '開發模式無法檢查更新 (Dev Mode)' });
+            return;
+        }
+        try {
+            autoUpdater.checkForUpdates();
+        } catch (error) {
+            console.error('Failed to check for updates:', error);
+            this.sendStatus('error', { message: '無法檢查更新: ' + error.message });
+        }
     }
 }
 
