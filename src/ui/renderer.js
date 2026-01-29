@@ -68,6 +68,22 @@ elements.pathBtn.addEventListener('click', async () => {
     }
 });
 
+elements.installPath.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+});
+
+elements.installPath.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        elements.installPath.value = file.path;
+        showStatus('[完成] 已選擇路徑');
+    }
+});
+
 elements.serverType.addEventListener('change', () => {
     elements.versionInput.value = '';
     elements.versionInput.placeholder = `請選擇 ${elements.serverType.value} 版本`;
