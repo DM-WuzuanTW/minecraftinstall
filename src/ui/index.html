@@ -44,7 +44,18 @@
                 </div>
             </div>
 
-            <div class="space-y-6">
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-4">
+                <button id="tab-btn-basic" class="flex-1 mc-tab mc-tab-active" onclick="switchTab('basic')">
+                    基本安裝
+                </button>
+                <button id="tab-btn-advanced" class="flex-1 mc-tab" onclick="switchTab('advanced')">
+                    伺服器設定
+                </button>
+            </div>
+
+            <div id="tab-basic" class="space-y-6">
+                <!-- Step 1 -->
                 <div class="mc-card">
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-2xl">1</span>
@@ -60,6 +71,7 @@
                     <p class="text-xs text-[#aaa] mt-2">提示: 不確定選哪個？新手建議選 Paper</p>
                 </div>
 
+                <!-- Step 2 -->
                 <div class="mc-card">
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-2xl">2</span>
@@ -72,9 +84,10 @@
                     <p class="text-xs text-[#aaa] mt-2">💡 建議選擇最新穩定版本</p>
                 </div>
 
+                <!-- Step 3 -->
                 <div class="mc-card">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-2xl">3️⃣</span>
+                        <span class="text-2xl">3</span>
                         <h3 class="mc-label text-base">選擇安裝位置</h3>
                     </div>
                     <div class="flex gap-2">
@@ -84,18 +97,19 @@
                     <p class="text-xs text-[#aaa] mt-2">💡 選擇一個空的資料夾</p>
                 </div>
 
-                <div class="mc-divider"></div>
-
                 <div class="mc-card">
-                    <h3 class="mc-label mb-3">進階設定 (選填)</h3>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" id="accept-eula" checked class="mc-checkbox">
+                        <span class="text-sm text-white group-hover:text-[#ffeb3b]">我同意 Minecraft EULA 使用條款
+                            (必須勾選)</span>
+                    </label>
+                </div>
+            </div>
 
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-2 cursor-pointer group">
-                            <input type="checkbox" id="accept-eula" checked class="mc-checkbox">
-                            <span class="text-sm text-white group-hover:text-[#ffeb3b]">我同意 Minecraft EULA 使用條款
-                                (必須勾選)</span>
-                        </label>
-
+            <div id="tab-advanced" class="space-y-6 hidden">
+                <div class="mc-card">
+                    <h3 class="mc-label mb-3">啟動設定</h3>
+                    <div class="space-y-4">
                         <label class="flex items-center gap-2 cursor-pointer group">
                             <input type="checkbox" id="enable-gui" class="mc-checkbox">
                             <span class="text-sm text-white group-hover:text-[#ffeb3b]">啟用伺服器圖形介面 (GUI)</span>
@@ -112,11 +126,51 @@
                                     <span class="text-sm text-white font-bold">MB</span>
                                 </div>
                             </div>
-                            <p class="text-xs text-[#aaa] mt-1">提示: 建議至少 2048MB (2GB)</p>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="mc-divider"></div>
+                <div class="mc-card">
+                    <h3 class="mc-label mb-3">遊戲規則設定</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="mc-label text-xs">遊戲模式</label>
+                            <select id="prop-gamemode" class="mc-select text-sm">
+                                <option value="survival">生存 (Survival)</option>
+                                <option value="creative">創造 (Creative)</option>
+                                <option value="adventure">冒險 (Adventure)</option>
+                                <option value="spectator">旁觀 (Spectator)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mc-label text-xs">遊戲難度</label>
+                            <select id="prop-difficulty" class="mc-select text-sm">
+                                <option value="easy">簡單 (Easy)</option>
+                                <option value="normal" selected>普通 (Normal)</option>
+                                <option value="hard">困難 (Hard)</option>
+                                <option value="peaceful">和平 (Peaceful)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mc-label text-xs">PVP 傷害</label>
+                            <select id="prop-pvp" class="mc-select text-sm">
+                                <option value="true">開啟 (True)</option>
+                                <option value="false">關閉 (False)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mc-label text-xs">允許飛行</label>
+                            <select id="prop-flight" class="mc-select text-sm">
+                                <option value="false">禁止 (False)</option>
+                                <option value="true">允許 (True)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="mc-card">
+                    <h3 class="mc-label mb-3">連線設定</h3>
+                    <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="mc-label text-xs">伺服器端口</label>
@@ -134,46 +188,48 @@
                         </div>
 
                         <div>
-                            <label class="mc-label text-xs">正版驗證</label>
+                            <label class="mc-label text-xs">正版驗證 (Online Mode)</label>
                             <select id="prop-online" class="mc-select">
                                 <option value="true">開啟 (只有正版玩家可以進入)</option>
                                 <option value="false">關閉 (盜版玩家也可以進入)</option>
                             </select>
+                            <p class="text-xs text-[#aaa] mt-1">* 關閉驗證可讓非正版玩家進入，但較不安全</p>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div id="progress-section" class="mc-card hidden">
-                    <h3 class="mc-label mb-3">安裝進度</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span id="progress-text" class="text-white">準備中...</span>
-                            <span id="progress-percent" class="text-[#ffeb3b] font-bold">0%</span>
-                        </div>
-                        <div class="mc-progress">
-                            <div id="progress-fill" class="mc-progress-fill" style="width: 0%"></div>
-                        </div>
+            <div id="progress-section" class="mc-card hidden">
+                <h3 class="mc-label mb-3">安裝進度</h3>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span id="progress-text" class="text-white">準備中...</span>
+                        <span id="progress-percent" class="text-[#ffeb3b] font-bold">0%</span>
+                    </div>
+                    <div class="mc-progress">
+                        <div id="progress-fill" class="mc-progress-fill" style="width: 0%"></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex gap-3 justify-end pt-4">
-                    <button id="reset-btn" class="mc-btn px-6">
-                        重置設定
-                    </button>
-                    <button id="install-btn" class="mc-btn-primary px-8 py-3 text-lg font-bold">
-                        開始安裝伺服器
-                    </button>
-                </div>
+            <div class="flex gap-3 justify-end pt-4">
+                <button id="reset-btn" class="mc-btn px-6">
+                    重置設定
+                </button>
+                <button id="install-btn" class="mc-btn-primary px-8 py-3 text-lg font-bold">
+                    開始安裝伺服器
+                </button>
             </div>
         </div>
+    </div>
 
-        <div class="mc-titlebar border-t-4 border-[#3a2817] py-2">
-            <div id="status-text" class="text-xs text-[#aaa]">準備就緒</div>
-            <div class="flex gap-2">
-                <button id="help-btn" class="mc-btn text-xs px-3 py-1">說明</button>
-                <button id="update-btn" class="mc-btn text-xs px-3 py-1">檢查更新</button>
-            </div>
+    <div class="mc-titlebar border-t-4 border-[#3a2817] py-2">
+        <div id="status-text" class="text-xs text-[#aaa]">準備就緒</div>
+        <div class="flex gap-2">
+            <button id="help-btn" class="mc-btn text-xs px-3 py-1">說明</button>
+            <button id="update-btn" class="mc-btn text-xs px-3 py-1">檢查更新</button>
         </div>
+    </div>
     </div>
 
     <div id="modal-overlay" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
@@ -217,6 +273,29 @@
                             如果有人是盜版，就關閉正版驗證。
                         </p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="custom-alert"
+        class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="mc-panel w-[450px] transform scale-90 transition-transform duration-300" id="alert-panel">
+            <div class="mc-titlebar">
+                <div class="flex items-center gap-2">
+                    <span class="mc-icon bg-[url('../assets/crafting_table.png')] bg-cover"></span>
+                    <span class="font-bold text-white text-lg tracking-wider" id="alert-title">提示</span>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <p id="alert-message" class="text-white text-lg leading-relaxed whitespace-pre-wrap mb-6"></p>
+
+                <div class="flex justify-end gap-3">
+                    <button id="alert-ok-btn" class="mc-btn mc-btn-primary w-full text-lg py-3">
+                        確定
+                    </button>
                 </div>
             </div>
         </div>

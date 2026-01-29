@@ -140,19 +140,16 @@ ipcMain.handle('get-versions', async (event, serverType) => {
 
 ipcMain.handle('start-installation', async (event, config) => {
     try {
-        const result = await installer.install(config);
+        // Pass sender to allow sending progress updates
+        const result = await installer.install(config, (status, progress) => {
+            event.sender.send('installation-progress', {
+                message: status,
+                percent: progress
+            });
+        });
         return { success: true, ...result };
     } catch (error) {
         return { success: false, error: error.message };
-    }
-});
-
-ipcMain.handle('check-java', async () => {
-    try {
-        const hasJava = await installer.checkJava();
-        return hasJava;
-    } catch (error) {
-        return false;
     }
 });
 

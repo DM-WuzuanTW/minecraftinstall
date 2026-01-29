@@ -27,7 +27,37 @@ const elements = {
     modalList: document.getElementById('modal-list'),
     modalClose: document.getElementById('modal-close'),
     helpModal: document.getElementById('help-modal'),
-    helpClose: document.getElementById('help-close')
+    helpClose: document.getElementById('help-close'),
+    // Alert Modal
+    alertModal: document.getElementById('custom-alert'),
+    alertPanel: document.getElementById('alert-panel'),
+    alertTitle: document.getElementById('alert-title'),
+    alertMessage: document.getElementById('alert-message'),
+    alertOkBtn: document.getElementById('alert-ok-btn'),
+    // New Settings
+    propGamemode: document.getElementById('prop-gamemode'),
+    propDifficulty: document.getElementById('prop-difficulty'),
+    propPvp: document.getElementById('prop-pvp'),
+    propFlight: document.getElementById('prop-flight'),
+    // Tabs
+    tabBtnBasic: document.getElementById('tab-btn-basic'),
+    tabBtnAdvanced: document.getElementById('tab-btn-advanced'),
+    tabBasic: document.getElementById('tab-basic'),
+    tabAdvanced: document.getElementById('tab-advanced')
+};
+
+window.switchTab = (tab) => {
+    if (tab === 'basic') {
+        elements.tabBasic.classList.remove('hidden');
+        elements.tabAdvanced.classList.add('hidden');
+        elements.tabBtnBasic.classList.add('mc-tab-active');
+        elements.tabBtnAdvanced.classList.remove('mc-tab-active');
+    } else {
+        elements.tabBasic.classList.add('hidden');
+        elements.tabAdvanced.classList.remove('hidden');
+        elements.tabBtnBasic.classList.remove('mc-tab-active');
+        elements.tabBtnAdvanced.classList.add('mc-tab-active');
+    }
 };
 
 let currentVersions = [];
@@ -125,7 +155,11 @@ elements.installBtn.addEventListener('click', async () => {
                 'server-port': elements.propPort.value,
                 'max-players': elements.propMaxPlayers.value,
                 'motd': elements.propMotd.value,
-                'online-mode': elements.propOnline.value
+                'online-mode': elements.propOnline.value,
+                'gamemode': elements.propGamemode.value,
+                'difficulty': elements.propDifficulty.value,
+                'pvp': elements.propPvp.value,
+                'allow-flight': elements.propFlight.value
             }
         }
     };
@@ -162,7 +196,7 @@ elements.installBtn.addEventListener('click', async () => {
             updateProgress('[完成] 安裝完成！', 100);
             showStatus('[完成] 伺服器安裝成功！');
             setTimeout(() => {
-                alert('[完成] 安裝完成！\n\n伺服器已安裝在:\n' + result.path + '\n\n請執行 start.bat 啟動伺服器');
+                showCustomAlert('安裝完成！', '伺服器已安裝在:\n' + result.path + '\n\n請執行 start.bat 啟動伺服器');
             }, 500);
         } else {
             updateProgress('[失敗] 安裝失敗', 0);
@@ -179,7 +213,7 @@ elements.installBtn.addEventListener('click', async () => {
 });
 
 elements.resetBtn.addEventListener('click', () => {
-    if (confirm('確定要重置所有設定嗎？')) {
+    showCustomAlert('確認重置', '確定要重置所有設定嗎？', () => {
         elements.serverType.value = 'Paper';
         elements.versionInput.value = '';
         elements.installPath.value = '';
@@ -191,9 +225,15 @@ elements.resetBtn.addEventListener('click', () => {
         elements.propMaxPlayers.value = 20;
         elements.propMotd.value = '一個全新的 Minecraft 伺服器';
         elements.propOnline.value = 'true';
+        elements.propGamemode.value = 'survival';
+        elements.propDifficulty.value = 'normal';
+        elements.propPvp.value = 'true';
+        elements.propFlight.value = 'false';
+
+        switchTab('basic');
         elements.progressSection.classList.add('hidden');
         showStatus('[完成] 設定已重置');
-    }
+    });
 });
 
 elements.helpBtn.addEventListener('click', () => {
@@ -259,6 +299,42 @@ ipcRenderer.on('update-status', (event, data) => {
     }
 });
 
+ipcRenderer.on('installation-progress', (event, data) => {
+    updateProgress(data.message, data.percent);
+    // Optionally update status text too, but updateProgress usually handles the bar and label above it
+});
+
 ipcRenderer.invoke('get-app-version').then(version => {
     showStatus(`[就緒] 版本 v${version}`);
 });
+
+// Custom Alert Logic
+function showCustomAlert(title, message, callback) {
+    elements.alertTitle.textContent = title;
+    elements.alertMessage.textContent = message;
+
+    elements.alertModal.classList.remove('hidden');
+    // Force reflow
+    void elements.alertModal.offsetWidth;
+
+    elements.alertModal.classList.remove('opacity-0');
+    elements.alertPanel.classList.remove('scale-90');
+
+    // One-time click handler
+    const okHandler = () => {
+        closeCustomAlert();
+        elements.alertOkBtn.removeEventListener('click', okHandler);
+        if (callback) callback();
+    };
+
+    elements.alertOkBtn.onclick = okHandler;
+}
+
+function closeCustomAlert() {
+    elements.alertModal.classList.add('opacity-0');
+    elements.alertPanel.classList.add('scale-90');
+
+    setTimeout(() => {
+        elements.alertModal.classList.add('hidden');
+    }, 300);
+}
