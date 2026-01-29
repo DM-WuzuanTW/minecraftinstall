@@ -28,18 +28,15 @@ const elements = {
     modalClose: document.getElementById('modal-close'),
     helpModal: document.getElementById('help-modal'),
     helpClose: document.getElementById('help-close'),
-    // Alert Modal
     alertModal: document.getElementById('custom-alert'),
     alertPanel: document.getElementById('alert-panel'),
     alertTitle: document.getElementById('alert-title'),
     alertMessage: document.getElementById('alert-message'),
     alertOkBtn: document.getElementById('alert-ok-btn'),
-    // New Settings
     propGamemode: document.getElementById('prop-gamemode'),
     propDifficulty: document.getElementById('prop-difficulty'),
     propPvp: document.getElementById('prop-pvp'),
     propFlight: document.getElementById('prop-flight'),
-    // Tabs
     tabBtnBasic: document.getElementById('tab-btn-basic'),
     tabBtnAdvanced: document.getElementById('tab-btn-advanced'),
     tabBasic: document.getElementById('tab-basic'),
@@ -301,31 +298,25 @@ ipcRenderer.on('update-status', (event, data) => {
 
 ipcRenderer.on('installation-progress', (event, data) => {
     updateProgress(data.message, data.percent);
-    // Optionally update status text too, but updateProgress usually handles the bar and label above it
 });
 
 ipcRenderer.invoke('get-app-version').then(version => {
-    // Update title bar version
     const versionEl = document.getElementById('app-version');
     if (versionEl) versionEl.textContent = `v${version}`;
 
-    // Update status text (optional, or keeping it "Ready")
     showStatus(`[就緒] 準備開始`);
 });
 
-// Custom Alert Logic
 function showCustomAlert(title, message, callback) {
     elements.alertTitle.textContent = title;
     elements.alertMessage.textContent = message;
 
     elements.alertModal.classList.remove('hidden');
-    // Force reflow
     void elements.alertModal.offsetWidth;
 
     elements.alertModal.classList.remove('opacity-0');
     elements.alertPanel.classList.remove('scale-90');
 
-    // One-time click handler
     const okHandler = () => {
         closeCustomAlert();
         elements.alertOkBtn.removeEventListener('click', okHandler);

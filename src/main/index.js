@@ -132,7 +132,20 @@ ipcMain.handle('get-versions', async (event, serverType) => {
             versions = await api.getPurpurVersions();
         }
 
-        return versions.length > 0 ? versions : ['1.20.4', '1.20.2', '1.20.1', '1.19.4'];
+        const sortVersions = (list) => {
+            return list.sort((a, b) => {
+                const partsA = a.split('.').map(Number);
+                const partsB = b.split('.').map(Number);
+                for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+                    const valA = partsA[i] || 0;
+                    const valB = partsB[i] || 0;
+                    if (valA !== valB) return valB - valA;
+                }
+                return 0;
+            });
+        };
+
+        return versions.length > 0 ? sortVersions(versions) : ['1.20.4', '1.20.2', '1.20.1', '1.19.4'];
     } catch (error) {
         return ['1.20.4', '1.20.2', '1.20.1', '1.19.4'];
     }
@@ -140,7 +153,6 @@ ipcMain.handle('get-versions', async (event, serverType) => {
 
 ipcMain.handle('start-installation', async (event, config) => {
     try {
-        // Pass sender to allow sending progress updates
         const result = await installer.install(config, (status, progress) => {
             event.sender.send('installation-progress', {
                 message: status,
@@ -157,7 +169,6 @@ ipcMain.handle('check-updates', async (event) => {
     if (updateManager) {
         updateManager.check();
     } else {
-        // Dev mode fallback
         event.sender.send('update-status', {
             type: 'error',
             data: { message: '開發模式無法使用自動更新功能' }

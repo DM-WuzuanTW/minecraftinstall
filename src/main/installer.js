@@ -14,13 +14,7 @@ class ServerInstaller {
     async install(config, progressCallback) {
         const { serverType, version, installPath, options = {} } = config;
 
-        // Callback for progress updates
         const updateProgress = (msg, percent) => {
-            // This assumes the caller might attach a listener, or we handle it via IPC in the main process
-            // Currently, the caller `main/index.js` or renderer expects simple return or error
-            // Ideally we should emit events, but for now we follow the existing pattern
-            // and maybe just log it. The UI update is handled by the caller polling or us sending IPC.
-            // We can check if `this.window` is available or pass a callback in config.
             if (progressCallback) {
                 progressCallback(msg, percent);
             }
@@ -29,22 +23,13 @@ class ServerInstaller {
         try {
             await fs.ensureDir(installPath);
 
-            // 1. Setup Java
             const javaVersion = this.javaManager.getJavaVersion(version);
-            // We need to send progress updates to UI. Since we don't have direct access to window here easily unless passed,
-            // we will skip fine-grained progress for now or rely on the main process to handle it.
-            // *Wait*, better to let the main process handle the UI updates.
-            // For now, let's just run it. 
-            // In a real scenario, we should pass `event.sender` or similar to send progress.
 
-            // Let's assume we want to auto-install Java if requested
-            let javaPath = 'java'; // Default system java
-            if (options.autoJava !== false) { // Default to true
-                // Note: We need a way to report progress back to UI
+            let javaPath = 'java';
+            if (options.autoJava !== false) {
                 javaPath = await this.javaManager.setupJava(installPath, javaVersion, updateProgress);
             }
 
-            // 2. Download Server Jar
             const downloadUrl = await this.getDownloadUrl(serverType, version);
             const filename = this.getFilename(serverType, version);
             const jarPath = await this.downloader.download(downloadUrl, filename);
@@ -57,22 +42,18 @@ class ServerInstaller {
             const targetPath = path.join(installPath, targetJarName);
             await fs.move(jarPath, targetPath, { overwrite: true });
 
-            // Special handling for Forge
             if (serverType.toLowerCase() === 'forge') {
                 updateProgress('正在執行 Forge 安裝程序... (這可能需要幾分鐘)', 95);
                 await this.installForge(installPath, javaPath, targetJarName, updateProgress);
             }
 
-            // 3. Setup Files
             if (options.acceptEula) {
                 await this.createEulaFile(installPath);
             }
 
             if (options.createStartScript) {
-                // Use relative path for portability if java is inside runtime
                 let scriptJavaPath = 'java';
                 if (javaPath.includes(installPath)) {
-                    // Make it relative: "runtime\bin\java.exe"
                     scriptJavaPath = path.relative(installPath, javaPath);
                 }
 
@@ -131,7 +112,6 @@ class ServerInstaller {
             });
 
             process.stderr.on('data', (data) => {
-                // Ignore standard warnings
                 const msg = data.toString();
                 if (!msg.includes('SLF4J') && !msg.includes('Consider reporting this')) {
                     console.error('Forge stderr:', msg);
@@ -147,24 +127,18 @@ class ServerInstaller {
     }
 
     async createForgeStartScript(installPath, memory, gui, javaPath) {
-        // Modern Forge (1.17+) uses run.bat and user_jvm_args.txt
         const runBatPath = path.join(installPath, 'run.bat');
         const runShPath = path.join(installPath, 'run.sh');
 
-        // Write memory settings to user_jvm_args.txt
-        const argsContent = `# Xmx and Xms set the maximum and minimum RAM usage of your server.
--Xms1024M
+        const argsContent = `-Xms1024M
 -Xmx${memory}M
 `;
         await fs.writeFile(path.join(installPath, 'user_jvm_args.txt'), argsContent);
 
-        // Check if run.bat exists (Modern Forge)
         if (await fs.pathExists(runBatPath) || await fs.pathExists(runShPath)) {
-            // Attempt to parse run.bat to find the actual args file
             let argsFile = '';
             try {
                 const runBatContent = await fs.readFile(runBatPath, 'utf8');
-                // Regex to find @libraries...win_args.txt
                 const match = runBatContent.match(/@(libraries.+win_args\.txt)/);
                 if (match) {
                     argsFile = match[1];
@@ -174,14 +148,12 @@ class ServerInstaller {
             }
 
             if (argsFile) {
-                // Create a clean start.bat that calls Java directly with the args file
                 const scriptContent = `@echo off
 "${javaPath}" @user_jvm_args.txt @${argsFile} ${gui ? '' : '--nogui'} %*
 pause
 `;
                 await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
 
-                // Aggressive Cleanup
                 const filesToDelete = [
                     'run.bat',
                     'run.sh',
@@ -195,8 +167,6 @@ pause
                     await fs.remove(path.join(installPath, file)).catch(() => { });
                 }
             } else {
-                // Fallback: If we couldn't parse run.bat, wrap it instead 
-                // but still delete the installer and logs
                 const scriptContent = `@echo off
 set "PATH=${path.dirname(javaPath)};%PATH%"
 call run.bat ${gui ? '' : '--nogui'}
@@ -204,13 +174,11 @@ pause
 `;
                 await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
 
-                // Basic Cleanup
                 await fs.remove(path.join(installPath, 'forge-installer.jar')).catch(() => { });
                 await fs.remove(path.join(installPath, 'installer.log')).catch(() => { });
             }
 
         } else {
-            // Older Forge: Look for forge-universal.jar or similar
             const files = await fs.readdir(installPath);
             const forgeJar = files.find(f => f.startsWith('forge-') && f.endsWith('.jar') && !f.includes('installer'));
 
@@ -220,7 +188,6 @@ pause
 pause
 `;
                 await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
-                // Cleanup installer
                 await fs.remove(path.join(installPath, 'forge-installer.jar')).catch(() => { });
             } else {
                 throw new Error('無法找到 Forge 啟動檔案 (run.bat 或 forge-universal.jar)');
@@ -232,8 +199,6 @@ pause
         const scriptPath = path.join(dir, 'start.bat');
         const guiFlag = gui ? '' : 'nogui';
 
-        // Ensure we quote the java command in case of spaces, but relative paths usually don't have spaces if 'runtime'
-        // But safe to quote.
         const content = `@echo off
 "${javaCommand}" -Xms${memoryMB}M -Xmx${memoryMB}M -jar server.jar ${guiFlag}
 pause
