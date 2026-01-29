@@ -19,7 +19,6 @@ echo --------------------------------------------------------
 pause
 echo.
 
-REM 檢查 Node.js
 where node >nul 2>nul
 if %errorlevel% neq 0 (
     echo [錯誤] 未安裝 Node.js
@@ -27,14 +26,11 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-REM --- 自動檢測 GITHUB TOKEN ---
 if not "%GH_TOKEN%"=="" goto TokenFound
 
-REM 從系統環境變數檢查
 for /f "tokens=3*" %%a in ('reg query HKCU\Environment /v GH_TOKEN 2^>nul') do set GH_TOKEN=%%a
 if not "%GH_TOKEN%"=="" goto TokenFound
 
-REM 嘗試使用 GitHub CLI
 where gh >nul 2>nul
 if %errorlevel% equ 0 (
     echo [資訊] 檢測到 GitHub CLI，嘗試取得 token...
@@ -42,7 +38,6 @@ if %errorlevel% equ 0 (
 )
 if not "%GH_TOKEN%"=="" goto TokenFound
 
-REM 如果還是沒有，提示使用者輸入
 echo.
 echo [!] Electron-Builder 需要 GitHub Personal Access Token 才能上傳檔案
 echo     (這與您的 Git 登入不同，需要有 repo 權限的 token)
@@ -72,21 +67,18 @@ echo  開始發布流程
 echo ========================================================
 echo.
 
-REM --- 自動遞增版本 ---
 echo [步驟 1/6] 遞增版本號...
 call npm version patch --no-git-tag-version
 for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set VERSION=%%v
 echo [完成] 新版本: v%VERSION%
 echo.
 
-REM --- Commit 版本變更 ---
 echo [步驟 2/6] 提交版本變更...
 git add package.json
 git commit -m "chore: bump version to v%VERSION%"
 echo [完成] 版本已提交
 echo.
 
-REM --- 推送代碼 ---
 echo [步驟 3/6] 推送到 GitHub...
 git push origin main
 if %errorlevel% neq 0 (
@@ -97,7 +89,6 @@ if %errorlevel% neq 0 (
 echo [完成] 代碼已推送
 echo.
 
-REM --- 建立並推送 Tag ---
 echo [步驟 4/6] 建立並推送 Tag v%VERSION%...
 git tag v%VERSION%
 git push origin v%VERSION%
@@ -109,7 +100,6 @@ if %errorlevel% neq 0 (
 echo [完成] Tag 已推送
 echo.
 
-REM --- 編譯 CSS ---
 echo [步驟 5/6] 編譯 Tailwind CSS...
 call npm run build:css
 if %errorlevel% neq 0 (
@@ -120,13 +110,11 @@ if %errorlevel% neq 0 (
 echo [完成] CSS 編譯完成
 echo.
 
-REM --- 清理舊的 dist ---
 echo [清理] 移除舊的打包檔案...
 if exist dist rmdir /s /q dist
 echo [完成] 清理完成
 echo.
 
-REM --- 打包與發布 ---
 echo [步驟 6/6] 打包應用程式並上傳到 GitHub...
 echo    - 使用快速模式 (無壓縮)
 echo    - 預計 1-3 分鐘完成

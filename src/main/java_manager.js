@@ -50,7 +50,7 @@ class JavaManager {
         await fs.ensureDir(runtimeDir);
 
         try {
-            exec(`attrib +h "${runtimeDir}"`);
+            execSync(`attrib +h "${runtimeDir}"`);
         } catch (e) { }
 
         const url = this.getDownloadUrl(javaVersion);
