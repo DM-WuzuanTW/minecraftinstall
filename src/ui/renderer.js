@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const fs = require('fs');
 
 const elements = {
     serverType: document.getElementById('server-type'),
@@ -79,8 +80,16 @@ elements.installPath.addEventListener('drop', (e) => {
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         const file = e.dataTransfer.files[0];
-        elements.installPath.value = file.path;
-        showStatus('[完成] 已選擇路徑');
+        try {
+            if (fs.statSync(file.path).isDirectory()) {
+                elements.installPath.value = file.path;
+                showStatus('[完成] 已選擇路徑');
+            } else {
+                showStatus('[錯誤] 請拖曳資料夾', true);
+            }
+        } catch (err) {
+            showStatus('[錯誤] 無法讀取路徑', true);
+        }
     }
 });
 
