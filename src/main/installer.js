@@ -60,7 +60,7 @@ class ServerInstaller {
             // Special handling for Forge
             if (serverType.toLowerCase() === 'forge') {
                 updateProgress('正在執行 Forge 安裝程序... (這可能需要幾分鐘)', 95);
-                await this.installForge(installPath, javaPath, targetJarName);
+                await this.installForge(installPath, javaPath, targetJarName, updateProgress);
             }
 
             // 3. Setup Files
@@ -111,13 +111,33 @@ class ServerInstaller {
         await fs.writeFile(eulaPath, content, 'utf8');
     }
 
-    async installForge(dir, javaPath, installerName) {
+    async installForge(dir, javaPath, installerName, updateProgress) {
         return new Promise((resolve, reject) => {
             console.log('Running Forge Installer:', javaPath, installerName);
             const process = spawn(javaPath, ['-jar', installerName, '--installServer'], {
                 cwd: dir,
-                stdio: 'ignore' // or 'inherit' for debugging
+                stdio: ['ignore', 'pipe', 'pipe']
             });
+
+            process.stdout.on('data', (data) => {
+                const line = data.toString();
+                if (updateProgress) {
+                    if (line.includes('Downloading')) {
+                        updateProgress('正在下載 Forge 函式庫... (這取決於您的網路速度)', 96);
+                    } else if (line.includes('Processing')) {
+                        updateProgress('正在處理 Forge 檔案...', 98);
+                    }
+                }
+            });
+
+            process.stderr.on('data', (data) => {
+                // Ignore standard warnings
+                const msg = data.toString();
+                if (!msg.includes('SLF4J') && !msg.includes('Consider reporting this')) {
+                    console.error('Forge stderr:', msg);
+                }
+            });
+
             process.on('close', (code) => {
                 if (code === 0) resolve();
                 else reject(new Error('Forge Installer failed with code ' + code));
@@ -140,21 +160,55 @@ class ServerInstaller {
 
         // Check if run.bat exists (Modern Forge)
         if (await fs.pathExists(runBatPath) || await fs.pathExists(runShPath)) {
-            // Create a start.bat that calls run.bat but ensures we use OUR java
-            // Wait, run.bat usually tries to find java. 
-            // We can set JAVA_HOME or just edit user_jvm_args? No user_jvm_args is for JVM args.
-            // run.bat uses "java" command. Use PATH.
+            // Attempt to parse run.bat to find the actual args file
+            let argsFile = '';
+            try {
+                const runBatContent = await fs.readFile(runBatPath, 'utf8');
+                // Regex to find @libraries...win_args.txt
+                const match = runBatContent.match(/@(libraries.+win_args\.txt)/);
+                if (match) {
+                    argsFile = match[1];
+                }
+            } catch (e) {
+                console.warn('Failed to parse run.bat:', e);
+            }
 
-            // To be safe, we generate our own simple start script that mimics run.bat but uses our java path
-            // Parsing run.bat is hard. 
-            // EASIEST WAY: Set PATH before calling run.bat
+            if (argsFile) {
+                // Create a clean start.bat that calls Java directly with the args file
+                const scriptContent = `@echo off
+"${javaPath}" @user_jvm_args.txt @${argsFile} ${gui ? '' : '--nogui'} %*
+pause
+`;
+                await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
 
-            const scriptContent = `@echo off
+                // Aggressive Cleanup
+                const filesToDelete = [
+                    'run.bat',
+                    'run.sh',
+                    'forge-installer.jar',
+                    'forge-installer.jar.log',
+                    'installer.log',
+                    'README.txt'
+                ];
+
+                for (const file of filesToDelete) {
+                    await fs.remove(path.join(installPath, file)).catch(() => { });
+                }
+            } else {
+                // Fallback: If we couldn't parse run.bat, wrap it instead 
+                // but still delete the installer and logs
+                const scriptContent = `@echo off
 set "PATH=${path.dirname(javaPath)};%PATH%"
 call run.bat ${gui ? '' : '--nogui'}
 pause
 `;
-            await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
+                await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
+
+                // Basic Cleanup
+                await fs.remove(path.join(installPath, 'forge-installer.jar')).catch(() => { });
+                await fs.remove(path.join(installPath, 'installer.log')).catch(() => { });
+            }
+
         } else {
             // Older Forge: Look for forge-universal.jar or similar
             const files = await fs.readdir(installPath);
@@ -166,6 +220,8 @@ pause
 pause
 `;
                 await fs.writeFile(path.join(installPath, 'start.bat'), scriptContent);
+                // Cleanup installer
+                await fs.remove(path.join(installPath, 'forge-installer.jar')).catch(() => { });
             } else {
                 throw new Error('無法找到 Forge 啟動檔案 (run.bat 或 forge-universal.jar)');
             }
