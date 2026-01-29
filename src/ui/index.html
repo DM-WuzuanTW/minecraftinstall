@@ -29,7 +29,7 @@
                     伺服器工作台
                 </span>
             </div>
-            <div class="text-xs text-[#ffeb3b] font-bold">v2.0.0</div>
+            <div id="app-version" class="text-xs text-[#ffeb3b] font-bold"></div>
         </div>
 
         <div class="p-6 max-h-[600px] overflow-y-auto mc-scrollbar">
@@ -221,15 +221,13 @@
                 </button>
             </div>
         </div>
-    </div>
-
-    <div class="mc-titlebar border-t-4 border-[#3a2817] py-2">
-        <div id="status-text" class="text-xs text-[#aaa]">準備就緒</div>
-        <div class="flex gap-2">
-            <button id="help-btn" class="mc-btn text-xs px-3 py-1">說明</button>
-            <button id="update-btn" class="mc-btn text-xs px-3 py-1">檢查更新</button>
+        <div class="mc-titlebar border-t-4 border-[#3a2817] py-2">
+            <div id="status-text" class="text-xs text-[#aaa]">準備就緒</div>
+            <div class="flex gap-2">
+                <button id="help-btn" class="mc-btn text-xs px-3 py-1">說明</button>
+                <button id="update-btn" class="mc-btn text-xs px-3 py-1">檢查更新</button>
+            </div>
         </div>
-    </div>
     </div>
 
     <div id="modal-overlay" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">

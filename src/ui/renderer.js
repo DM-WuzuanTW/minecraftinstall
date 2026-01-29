@@ -305,7 +305,12 @@ ipcRenderer.on('installation-progress', (event, data) => {
 });
 
 ipcRenderer.invoke('get-app-version').then(version => {
-    showStatus(`[就緒] 版本 v${version}`);
+    // Update title bar version
+    const versionEl = document.getElementById('app-version');
+    if (versionEl) versionEl.textContent = `v${version}`;
+
+    // Update status text (optional, or keeping it "Ready")
+    showStatus(`[就緒] 準備開始`);
 });
 
 // Custom Alert Logic
