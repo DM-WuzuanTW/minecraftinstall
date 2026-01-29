@@ -164,14 +164,23 @@
     }
 
     .mc-tab {
-        @apply px-6 py-3 bg-gradient-to-b from-[#4a4a4a] to-[#2f2f2f] border-2 border-[#1a1a1a] cursor-pointer;
-        @apply text-[#999] font-bold uppercase tracking-wide transition-all;
-        box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+        @apply flex-1 px-4 py-3 text-center cursor-pointer font-bold transition-all duration-100;
+        @apply bg-[#3a3a3a] border-2 border-[#1a1a1a] text-[#888];
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 2px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .mc-tab:hover {
+        @apply bg-[#4a4a4a] text-[#aaa];
     }
 
     .mc-tab-active {
-        @apply bg-gradient-to-b from-[#5a5a5a] to-[#3f3f3f] text-white border-b-4 border-[#7cb342];
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        @apply bg-[#5a5a5a] text-[#ffeb3b] border-[#2a2a2a];
+        box-shadow:
+            inset 0 2px 4px rgba(0, 0, 0, 0.5),
+            0 1px 0 rgba(255, 255, 255, 0.05);
+        transform: translateY(1px);
     }
 }
 
